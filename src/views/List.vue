@@ -29,6 +29,15 @@
             </b-form-group>
           </b-form>
         </b-modal>
+        <b-modal
+            ref="newTaskModal"
+            v-model="createTaskModal"
+            :busy="createTaskModalBusy"
+            title="Create New Task"
+            @ok.prevent=""
+        >
+
+        </b-modal>
         <div class="d-flex">
           <h1 v-if="!editing">{{ todoList.name }}</h1>
           <b-form v-if="editing" inline @submit.prevent="saveTodoList">
@@ -78,7 +87,6 @@
               <p>{{ task.task }}-{{ task.priority }}</p>
             </b-form>
             <b-card-text v-if="!category.tasks.length > 0">No tasks yet :(</b-card-text>
-            <b-icon v-if="loading" icon="arrow-clockwise" animation="spin" font-scale="1"></b-icon>
           </b-collapse>
         </b-card>
       </div>
@@ -87,7 +95,7 @@
 </template>
 
 <script>
-import Sidebar from "../components/a-Sidebar";
+import Sidebar from "../components/a-sidebar";
 
 export default {
   components: { Sidebar },
@@ -107,7 +115,9 @@ export default {
       createCategoryFormValidity: null,
       createCategoryModal: false,
       createCategoryModalBusy: false,
-      loading: false,
+      createTaskFormValidity: null,
+      createTaskModal: false,
+      createTaskModalBusy: false,
       editing: false
     }
   },

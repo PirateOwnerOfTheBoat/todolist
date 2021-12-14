@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import VueRouter from "vue-router";
+import VueRouter from "vue-router"
+import Vuex from 'vuex'
 import App from './App.vue'
 import router from "./router"
 
@@ -10,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 
 
 Vue.use(VueRouter)
+Vue.use(Vuex)
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 

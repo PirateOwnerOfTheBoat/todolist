@@ -1,9 +1,13 @@
 import Vue from 'vue'
-import axios from "axios"
-import router from "./router";
+import axios from 'axios'
+import router from './router'
 
 const Api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/v1'
+    baseURL: 'http://127.0.0.1:8000/api/v1',
+    headers: {
+        'Authorization': `Bearer ${localStorage.getItem("token")}`,
+        'Content-Type': 'application/json'
+    }
 })
 
 Api.interceptors.response.use(function (response) {
@@ -12,9 +16,11 @@ Api.interceptors.response.use(function (response) {
     // TODO: Set cookie for redirect from login page
     switch (error.response.status) {
         case 401:
+            localStorage.removeItem("token")
             router.push('/login')
             break
         case 403:
+            localStorage.removeItem("token")
             router.push('/login')
             break
     }

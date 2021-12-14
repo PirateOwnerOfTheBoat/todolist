@@ -95,7 +95,8 @@
 </template>
 
 <script>
-import Sidebar from "../components/a-sidebar";
+import Sidebar from "../components/a-sidebar"
+import todoListsApi from "../axios/todoLists.api"
 
 export default {
   components: { Sidebar },
@@ -132,11 +133,7 @@ export default {
       this.todoList = {}
       this.loading = true
 
-      let response = await this.$http.get(`/todolists/${this.$route.params.id}`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-      })
+      let response = await todoListsApi.getAllTodoLists()
 
       this.todoList = response.data
 

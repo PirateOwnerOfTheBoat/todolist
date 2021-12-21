@@ -12,6 +12,13 @@ export default {
 
             localStorage.setItem("user", user)
             localStorage.setItem("token", token)
+        },
+        loggedOut(state) {
+            state.user = {}
+            state.token = {}
+
+            localStorage.removeItem("user")
+            localStorage.removeItem("token")
         }
     },
     actions: {
@@ -21,7 +28,16 @@ export default {
 
                 commit('loggedIn', response.data.response)
             } catch (err) {
-                throw new err;
+                throw new err
+            }
+        },
+        async logout({ commit }) {
+            try {
+                await authApi.logout()
+
+                commit('loggedOut')
+            } catch (err) {
+                throw new err
             }
         }
     },

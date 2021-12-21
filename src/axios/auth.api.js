@@ -7,6 +7,9 @@ export default {
             password: password
         })
     },
+    logout() {
+        return Api.post('/auth/forgot')
+    },
     register(name, email, password, confirmPassword) {
         return Api.post('/auth/signup', {
             name: name,

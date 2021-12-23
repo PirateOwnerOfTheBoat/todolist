@@ -19,6 +19,13 @@ export default {
 
             localStorage.removeItem("user")
             localStorage.removeItem("token")
+        },
+        registered(state, { token, user }) {
+            state.user = user
+            state.token = token
+
+            localStorage.setItem("user", user)
+            localStorage.setItem("token", token)
         }
     },
     actions: {
@@ -39,9 +46,23 @@ export default {
             } catch (err) {
                 throw new err
             }
+        },
+        async register({ commit }, {name, email, password, confirmPassword}) {
+            try {
+                let response = await authApi.register(name, email, password, confirmPassword)
+
+                commit('registered', response.data.response)
+            } catch (err) {
+                throw new err
+            }
         }
     },
     getters: {
-
+        getUser(state) {
+            return state.user
+        },
+        getToken(state) {
+            return state.token
+        }
     }
 }

@@ -4,23 +4,23 @@
     <div class="w-100">
       <b-modal
           ref="newCategoryModal"
-          v-model="createCategoryModal"
-          :busy="createCategoryModalBusy"
+          v-model="categoryModal"
+          :busy="categoryModalBusy"
           title="Create New Category"
           @ok.prevent="createNewCategory"
       >
         <b-form ref="newCategoryForm" @submit.stop.prevent="createNewCategory">
           <b-form-group
               id="modal-group-1"
-              :state="createCategoryFormValidity"
+              :state="categoryFormValidity"
               invalid-feedback="Name is required"
               label="Name"
               label-for="modal-1"
           >
             <b-form-input
                 id="modal-1"
-                v-model="createCategoryForm.name"
-                :state="createCategoryFormValidity"
+                v-model="categoryForm.name"
+                :state="categoryFormValidity"
                 placeholder="Enter category name"
                 required
                 type="text"
@@ -30,23 +30,23 @@
       </b-modal>
       <b-modal
           ref="newTaskModal"
-          v-model="createTaskModal"
-          :busy="createTaskModalBusy"
+          v-model="taskModal"
+          :busy="taskModalBusy"
           title="Create New Task"
           @ok.prevent="createNewTask"
       >
         <b-form ref="newTaskForm" @submit.stop.prevent="createNewTask">
           <b-form-group
               id="task-modal-group-1"
-              :state="createTaskFormValidity"
+              :state="taskFormValidity"
               invalid-feedback="Task is required"
               label="Task"
               label-for="task-modal-1"
           >
             <b-form-input
                 id="task-modal-1"
-                v-model="createTaskForm.task"
-                :state="createTaskFormValidity"
+                v-model="taskForm.task"
+                :state="taskFormValidity"
                 placeholder="Enter task"
                 required
                 type="text"
@@ -54,15 +54,15 @@
           </b-form-group>
           <b-form-group
               id="task-modal-group-2"
-              :state="createTaskFormValidity"
+              :state="taskFormValidity"
               invalid-feedback="Priority is required"
               label="Priority"
               label-for="task-modal-2"
           >
             <b-form-input
                 id="task-modal-2"
-                v-model="createTaskForm.priority"
-                :state="createTaskFormValidity"
+                v-model="taskForm.priority"
+                :state="taskFormValidity"
                 placeholder="Enter priority"
                 required
                 type="number"
@@ -87,7 +87,7 @@
           </b-button>
         </b-form>
         <div v-if="!editing" class="float-right">
-          <b-link class="link-primary" @click="createCategoryModal = !createCategoryModal">
+          <b-link class="link-primary" @click="categoryModal = !categoryModal">
             <b-icon-plus-circle></b-icon-plus-circle>
           </b-link>
           <b-link class="link-secondary" @click="editing = !editing">
@@ -104,11 +104,11 @@
       >
         <template #header>
           <div class="d-flex justify-content-between">
-            <a v-b-toggle="`collapse-${category.id}`"
+            <b-link v-b-toggle="`collapse-${category.id}`"
                variant="primary"
             >
               <h6 class="mb-0">{{ category.name }}</h6>
-            </a>
+            </b-link>
             <div>
               <b-link class="link-primary" @click="openCreateTaskModal(category.id)"><b-icon-plus-circle></b-icon-plus-circle></b-link>
               <b-link class="link-secondary"><b-icon-pencil-square></b-icon-pencil-square></b-link>
@@ -139,25 +139,23 @@ export default {
         name: ''
       },
 
-      createCategoryForm: {
+      categoryForm: {
         name: ''
       },
-      createCategoryFormValidity: null,
+      categoryFormValidity: null,
 
-      createTaskForm: {
+      taskForm: {
         task: '',
         priority: 0
       },
-      createTaskFormValidity: null,
-      creatingTaskForCategory: -1,
+      taskFormValidity: null,
+      taskForCategory: -1,
 
-      createCategoryModal: false,
-      createCategoryModalBusy: false,
+      categoryModal: false,
+      categoryModalBusy: false,
 
-      createTaskModal: false,
-      createTaskModalBusy: false,
-
-      taskForms: [],
+      taskModal: false,
+      taskModalBusy: false,
 
       editing: false
     }
@@ -186,15 +184,15 @@ export default {
     async createNewCategory() {
       if (!this.validateNewCategoryForm()) return
 
-      this.createCategoryModalBusy = true
+      this.categoryModalBusy = true
 
-      await this.$store.dispatch('createCategory', {todoListId:this.$route.params.id, category:this.createCategoryForm})
+      await this.$store.dispatch('createCategory', {todoListId:this.$route.params.id, category:this.categoryForm})
 
       this.$nextTick(() => {
-        this.createCategoryModal = !this.createCategoryModal
-        this.createCategoryForm.name = ''
-        this.createCategoryFormValidity = null
-        this.createCategoryModalBusy = false
+        this.categoryModal = !this.categoryModal
+        this.categoryForm.name = ''
+        this.categoryFormValidity = null
+        this.categoryModalBusy = false
       })
     },
     async updateCategory() {
@@ -207,16 +205,16 @@ export default {
     async createNewTask() {
       if (!this.validateNewTaskForm()) return
 
-      this.createTaskModalBusy = true
+      this.taskModalBusy = true
 
-      await this.$store.dispatch('createTask', {categoryId:this.creatingTaskForCategory, task:this.createTaskForm})
+      await this.$store.dispatch('createTask', {categoryId:this.taskForCategory, task:this.taskForm})
 
       this.$nextTick(() => {
-        this.createTaskModal = !this.createTaskModal
-        this.createTaskForm.task = ''
-        this.createTaskForm.priority = 0
-        this.createTaskFormValidity = null
-        this.createTaskModalBusy = false
+        this.taskModal = !this.taskModal
+        this.taskForm.task = ''
+        this.taskForm.priority = 0
+        this.taskFormValidity = null
+        this.taskModalBusy = false
       })
     },
     async updateTask() {
@@ -234,19 +232,19 @@ export default {
 
     validateNewCategoryForm() {
       const valid = this.$refs.newCategoryForm.checkValidity()
-      this.createCategoryFormValidity = valid
+      this.categoryFormValidity = valid
       return valid
     },
     validateNewTaskForm() {
       const valid = this.$refs.newTaskForm.checkValidity()
-      this.createTaskFormValidity = valid
+      this.taskFormValidity = valid
       return valid
     },
 
 
     openCreateTaskModal(categoryId) {
-      this.creatingTaskForCategory = categoryId
-      this.createTaskModal = true
+      this.taskForCategory = categoryId
+      this.taskModal = true
     },
 
 

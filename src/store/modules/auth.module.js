@@ -2,7 +2,7 @@ import authApi from "../../axios/auth.api";
 
 export default {
     state: {
-        user: localStorage.getItem("user") || {},
+        user: JSON.parse(localStorage.getItem("user")) || {},
         token: localStorage.getItem("token") || {},
     },
     mutations: {
@@ -10,7 +10,7 @@ export default {
             state.user = user
             state.token = token
 
-            localStorage.setItem("user", user)
+            localStorage.setItem("user", JSON.stringify(user))
             localStorage.setItem("token", token)
         },
         loggedOut(state) {
@@ -24,7 +24,7 @@ export default {
             state.user = user
             state.token = token
 
-            localStorage.setItem("user", user)
+            localStorage.setItem("user", JSON.stringify(user))
             localStorage.setItem("token", token)
         }
     },

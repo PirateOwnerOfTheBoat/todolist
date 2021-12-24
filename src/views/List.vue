@@ -208,8 +208,13 @@ export default {
       }
       this.categoryModal = true
     },
+    validateCategoryForm() {
+      const valid = this.$refs.newCategoryForm.checkValidity()
+      this.categoryFormValidity = valid
+      return valid
+    },
     async handleCategorySubmit() {
-      if (!this.validateNewCategoryForm()) return
+      if (!this.validateCategoryForm()) return
       this.categoryModalBusy = true
 
       switch (this.categoryModalMode) {
@@ -250,8 +255,13 @@ export default {
 
       this.taskModal = true
     },
+    validateTaskForm() {
+      const valid = this.$refs.newTaskForm.checkValidity()
+      this.taskFormValidity = valid
+      return valid
+    },
     async handleTaskSubmit() {
-      if (!this.validateNewTaskForm()) return
+      if (!this.validateTaskForm()) return
       this.taskModalBusy = true
 
       switch (this.taskModalMode) {
@@ -276,17 +286,6 @@ export default {
     closeTodoListEditForm() {
       this.editing = false
       this.editForm.name = ''
-    },
-
-    validateNewCategoryForm() {
-      const valid = this.$refs.newCategoryForm.checkValidity()
-      this.categoryFormValidity = valid
-      return valid
-    },
-    validateNewTaskForm() {
-      const valid = this.$refs.newTaskForm.checkValidity()
-      this.taskFormValidity = valid
-      return valid
     },
 
     tasks(id) {

@@ -117,8 +117,8 @@
           </div>
         </template>
         <b-collapse visible :id="`collapse-${category.id}`">
-          <b-form class="justify-content-between" inline v-for="task in tasks(category.id)" :key="task.id">
-            <div>
+          <div class="d-flex justify-content-between" v-for="task in tasks(category.id)" :key="task.id">
+            <div class="d-flex">
               <b-form-checkbox></b-form-checkbox>
               <p>{{ task.task }}-{{ task.priority }}</p>
             </div>
@@ -126,7 +126,7 @@
               <b-link class="link-primary" @click="openTaskModal(1, task.id)"><b-icon-pencil-square></b-icon-pencil-square></b-link>
               <b-link class="link-danger" @click="deleteTask(task.id)"><b-icon-trash></b-icon-trash></b-link>
             </div>
-          </b-form>
+          </div>
           <b-card-text v-if="!tasks(category.id).length > 0">No tasks yet :(</b-card-text>
         </b-collapse>
       </b-card>

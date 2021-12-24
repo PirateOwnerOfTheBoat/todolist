@@ -119,7 +119,7 @@
         <b-collapse visible :id="`collapse-${category.id}`">
           <div class="d-flex justify-content-between" v-for="task in tasks(category.id)" :key="task.id">
             <div class="d-flex">
-              <b-form-checkbox></b-form-checkbox>
+              <input :checked="task.is_done!=='0'" type="checkbox" :ref="`task-checkbox-${task.id}`" @click.prevent="toggleTask(task.id)"/>
               <p>{{ task.task }}-{{ task.priority }}</p>
             </div>
             <div>
@@ -280,6 +280,18 @@ export default {
     },
     async deleteTask(taskId) {
       await this.$store.dispatch('deleteTask', taskId)
+    },
+    async toggleTask(taskId) {
+      this.$refs[`task-checkbox-${taskId}`].disabled = true
+
+      await this.$store.dispatch('updateTask', {
+        taskId:taskId,
+        task: {
+          is_done:(this.$store.getters.getTaskById(taskId).is_done==="0") ? "1" : "0"
+        }
+      })
+
+      this.$refs[`task-checkbox-${taskId}`].disabled = false
     },
 
 

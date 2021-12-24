@@ -6,10 +6,10 @@
           ref="newCategoryModal"
           v-model="categoryModal"
           :busy="categoryModalBusy"
-          title="Create New Category"
-          @ok.prevent="createNewCategory"
+          :title="categoryModalTitle"
+          @ok.prevent="handleCategorySubmit"
       >
-        <b-form ref="newCategoryForm" @submit.stop.prevent="createNewCategory">
+        <b-form ref="newCategoryForm" @submit.stop.prevent="handleCategorySubmit">
           <b-form-group
               id="modal-group-1"
               :state="categoryFormValidity"
@@ -32,10 +32,10 @@
           ref="newTaskModal"
           v-model="taskModal"
           :busy="taskModalBusy"
-          title="Create New Task"
-          @ok.prevent="createNewTask"
+          :title="taskModalTitle"
+          @ok.prevent="handleTaskSubmit"
       >
-        <b-form ref="newTaskForm" @submit.stop.prevent="createNewTask">
+        <b-form ref="newTaskForm" @submit.stop.prevent="handleTaskSubmit">
           <b-form-group
               id="task-modal-group-1"
               :state="taskFormValidity"
@@ -87,7 +87,7 @@
           </b-button>
         </b-form>
         <div v-if="!editing" class="float-right">
-          <b-link class="link-primary" @click="categoryModal = !categoryModal">
+          <b-link class="link-primary" @click="openCategoryModal(0)">
             <b-icon-plus-circle></b-icon-plus-circle>
           </b-link>
           <b-link class="link-secondary" @click="editing = !editing">
@@ -110,16 +110,22 @@
               <h6 class="mb-0">{{ category.name }}</h6>
             </b-link>
             <div>
-              <b-link class="link-primary" @click="openCreateTaskModal(category.id)"><b-icon-plus-circle></b-icon-plus-circle></b-link>
-              <b-link class="link-secondary"><b-icon-pencil-square></b-icon-pencil-square></b-link>
+              <b-link class="link-primary" @click="openTaskModal(0, category.id)"><b-icon-plus-circle></b-icon-plus-circle></b-link>
+              <b-link class="link-secondary" @click="openCategoryModal(1, category.id)"><b-icon-pencil-square></b-icon-pencil-square></b-link>
               <b-link class="link-danger" @click="deleteCategory(category)"><b-icon-trash></b-icon-trash></b-link>
             </div>
           </div>
         </template>
         <b-collapse visible :id="`collapse-${category.id}`">
-          <b-form inline v-for="task in tasks(category.id)" :key="task.id">
-            <b-form-checkbox></b-form-checkbox>
-            <p>{{ task.task }}-{{ task.priority }}</p>
+          <b-form class="justify-content-between" inline v-for="task in tasks(category.id)" :key="task.id">
+            <div>
+              <b-form-checkbox></b-form-checkbox>
+              <p>{{ task.task }}-{{ task.priority }}</p>
+            </div>
+            <div>
+              <b-link class="link-primary" @click="openTaskModal(1, task.id)"><b-icon-pencil-square></b-icon-pencil-square></b-link>
+              <b-link class="link-danger" @click="deleteTask(task.id)"><b-icon-trash></b-icon-trash></b-link>
+            </div>
           </b-form>
           <b-card-text v-if="!tasks(category.id).length > 0">No tasks yet :(</b-card-text>
         </b-collapse>
@@ -149,12 +155,17 @@ export default {
         priority: 0
       },
       taskFormValidity: null,
-      taskForCategory: -1,
 
       categoryModal: false,
+      categoryModalTitle: 'Create New Category',
+      categoryModalMode: 0,
+      categoryModalCategoryId: 0,
       categoryModalBusy: false,
 
       taskModal: false,
+      taskModalTitle: 'Create New Task',
+      taskModalMode: 0,
+      taskModalId: 0,
       taskModalBusy: false,
 
       editing: false
@@ -181,47 +192,84 @@ export default {
       await this.$router.replace('/')
     },
 
-    async createNewCategory() {
+    openCategoryModal(mode, categoryId) {
+      this.categoryFormValidity = null
+      this.categoryModalMode = mode
+      this.categoryModalCategoryId = categoryId
+      switch (this.categoryModalMode) {
+        case 0:
+          this.categoryForm.name = ''
+          this.categoryModalTitle = 'Create New Category'
+          break
+        case 1:
+          this.categoryForm.name = this.$store.getters.getCategoryById(categoryId).name
+          this.categoryModalTitle = 'Edit Category'
+          break
+      }
+      this.categoryModal = true
+    },
+    async handleCategorySubmit() {
       if (!this.validateNewCategoryForm()) return
-
       this.categoryModalBusy = true
 
-      await this.$store.dispatch('createCategory', {todoListId:this.$route.params.id, category:this.categoryForm})
+      switch (this.categoryModalMode) {
+        case 0:
+          await this.$store.dispatch('createCategory', {todoListId:this.$route.params.id, category:this.categoryForm})
+          break
+        case 1:
+          await this.$store.dispatch('updateCategory', {categoryId:this.categoryModalCategoryId, category:this.categoryForm})
+          break
+      }
 
       this.$nextTick(() => {
         this.categoryModal = !this.categoryModal
-        this.categoryForm.name = ''
-        this.categoryFormValidity = null
         this.categoryModalBusy = false
       })
-    },
-    async updateCategory() {
-
     },
     async deleteCategory(category) {
       await this.$store.dispatch('deleteCategory', category.id)
     },
 
-    async createNewTask() {
-      if (!this.validateNewTaskForm()) return
+    openTaskModal(mode, id) {
+      this.taskFormValidity = null
+      this.taskModalMode = mode
+      this.taskModalId = id
 
+      switch (this.taskModalMode) {
+        case 0:
+          this.taskForm.task = ''
+          this.taskForm.priority = 0
+          this.taskModalTitle = 'Create New Task'
+          break
+        case 1:
+          this.taskForm.task = this.$store.getters.getTaskById(id).task
+          this.taskForm.priority = this.$store.getters.getTaskById(id).priority
+          this.taskModalTitle = 'Edit Task'
+          break
+      }
+
+      this.taskModal = true
+    },
+    async handleTaskSubmit() {
+      if (!this.validateNewTaskForm()) return
       this.taskModalBusy = true
 
-      await this.$store.dispatch('createTask', {categoryId:this.taskForCategory, task:this.taskForm})
+      switch (this.taskModalMode) {
+        case 0:
+          await this.$store.dispatch('createTask', {categoryId: this.taskModalId, task: this.taskForm})
+          break
+        case 1:
+          await this.$store.dispatch('updateTask', {taskId: this.taskModalId, task: this.taskForm})
+          break
+      }
 
       this.$nextTick(() => {
         this.taskModal = !this.taskModal
-        this.taskForm.task = ''
-        this.taskForm.priority = 0
-        this.taskFormValidity = null
         this.taskModalBusy = false
       })
     },
-    async updateTask() {
-
-    },
-    async deleteTask(task) {
-      await this.$store.dispatch('deleteTask', task.id)
+    async deleteTask(taskId) {
+      await this.$store.dispatch('deleteTask', taskId)
     },
 
 
@@ -240,13 +288,6 @@ export default {
       this.taskFormValidity = valid
       return valid
     },
-
-
-    openCreateTaskModal(categoryId) {
-      this.taskForCategory = categoryId
-      this.taskModal = true
-    },
-
 
     tasks(id) {
       return this.$store.getters.getTasksByCategoryId(id)

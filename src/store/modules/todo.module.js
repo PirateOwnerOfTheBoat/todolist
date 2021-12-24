@@ -18,8 +18,14 @@ export default {
         getCategoriesByTodoListId: (state) => (todoListId) => {
             return state.categories.filter(category => category.todo_list_id == todoListId) || {}
         },
+        getCategoryById: (state) => (categoryId) => {
+            return state.categories.find(category => category.id == categoryId) || {}
+        },
         getTasksByCategoryId: (state) => (categoryId) => {
             return state.tasks.filter(task => task.category_id == categoryId) || {}
+        },
+        getTaskById: (state) => (taskId) => {
+            return state.tasks.find(task => task.id == taskId) || {}
         }
     },
     mutations: {
@@ -47,7 +53,7 @@ export default {
             state.categories.push(category)
         },
         categoryUpdated(state, {categoryId, category}) {
-            Object.assign(state.categories[state.categories.findIndex(category => category.id = categoryId)], category)
+            Object.assign(state.categories[state.categories.findIndex(category => category.id === categoryId)], category)
         },
         categoryDeleted(state, categoryId) {
             state.categories.splice(state.categories.findIndex(category => category.id === categoryId), 1)

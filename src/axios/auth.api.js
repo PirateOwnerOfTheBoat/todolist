@@ -8,7 +8,13 @@ export default {
         })
     },
     logout() {
-        return Api.post('/auth/forgot')
+        return Api.post('/auth/forgot', {
+            email: JSON.parse(localStorage.getItem("user")).email
+        }, {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        })
     },
     register(name, email, password, confirmPassword) {
         return Api.post('/auth/signup', {

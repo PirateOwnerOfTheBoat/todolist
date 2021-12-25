@@ -27,6 +27,11 @@
     </b-modal>
     <b-nav vertical class="flex-nowrap">
 <!--      TODO: Show user-->
+      <b-dropdown variant="primary" :text="getUser.name">
+        <b-dropdown-item>{{ getUser.email }}</b-dropdown-item>
+        <b-dropdown-divider></b-dropdown-divider>
+        <b-dropdown-item-button @click.native="logout" variant="danger">Logout</b-dropdown-item-button>
+      </b-dropdown>
       <b-nav-item
         v-for="todoList in getTodoLists"
         :key="todoList.id"
@@ -56,7 +61,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-        "getTodoLists"
+        "getTodoLists",
+        "getUser"
     ])
   },
   methods: {
@@ -78,6 +84,15 @@ export default {
         this.modalBusy = false
       })
     },
+    async logout() {
+      await this.$store.dispatch('logout')
+      await this.$router.push({
+        name: 'login',
+        params: {
+          message: 'Logged out successfully.'
+        }
+      })
+    }
   }
 }
 </script>

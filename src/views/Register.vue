@@ -82,7 +82,12 @@ export default {
 
       try {
         await authApi.register(this.registerForm.name, this.registerForm.email, this.registerForm.password, this.registerForm.password_confirmation)
-        this.$router.replace("/login")
+        await this.$router.replace({
+          name: 'login',
+          params: {
+            message: 'Registered successfully.'
+          }
+        })
       } catch (err) {
         this.errorMessage = err.response.data.error
         this.showAlert = true

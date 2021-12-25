@@ -2,8 +2,11 @@
   <div>
     <b-form>
       <h2>Login</h2>
-      <b-alert v-model="showAlert" variant="danger" dismissible>
+      <b-alert v-model="errorAlert" variant="danger" dismissible>
         {{ errorMessage }}
+      </b-alert>
+      <b-alert v-model="successAlert" variant="success" dismissible>
+        {{ successMessage }}
       </b-alert>
       <b-form @submit.prevent="login()">
         <b-form-group
@@ -48,13 +51,24 @@ export default {
         login: '',
         password: ''
       },
+
+      successMessage: '',
+      successAlert: false,
+
       errorMessage: '',
-      showAlert: false
+      errorAlert: false
+    }
+  },
+  mounted() {
+    const message = this.$route.params.message
+    if (message) {
+      this.successMessage = message
+      this.successAlert = true
     }
   },
   methods: {
     async login() {
-      this.showAlert = false
+      this.errorAlert = false
 
       try {
         await this.$store.dispatch("login", this.loginForm)
@@ -69,7 +83,7 @@ export default {
         )
       } catch (err) {
         this.errorMessage = 'Wrong name or password.'
-        this.showAlert = true
+        this.errorAlert = true
       }
     }
   }

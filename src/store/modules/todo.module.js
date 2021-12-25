@@ -43,30 +43,30 @@ export default {
             state.todoLists.push(todoList)
         },
         todoListUpdated(state, {todoListId, todoList}) {
-            Object.assign(state.todoLists[state.todoLists.findIndex(todoList => todoList.id === todoListId)], todoList)
+            Object.assign(state.todoLists[state.todoLists.findIndex(todoList => todoList.id == todoListId)], todoList)
         },
         todoListDeleted(state, todoListId) {
-            state.todoLists.splice(state.todoLists.findIndex(todoList => todoList.id === todoListId), 1)
+            state.todoLists.splice(state.todoLists.findIndex(todoList => todoList.id == todoListId), 1)
         },
 
         categoryCreated(state, category) {
             state.categories.push(category)
         },
         categoryUpdated(state, {categoryId, category}) {
-            Object.assign(state.categories[state.categories.findIndex(category => category.id === categoryId)], category)
+            Object.assign(state.categories[state.categories.findIndex(category => category.id == categoryId)], category)
         },
         categoryDeleted(state, categoryId) {
-            state.categories.splice(state.categories.findIndex(category => category.id === categoryId), 1)
+            state.categories.splice(state.categories.findIndex(category => category.id == categoryId), 1)
         },
 
         taskCreated(state, task) {
             state.tasks.push(task)
         },
         taskUpdated(state, {taskId, task}) {
-            Object.assign(state.tasks[state.tasks.findIndex(task => task.id === taskId)], task)
+            Object.assign(state.tasks[state.tasks.findIndex(task => task.id == taskId)], task)
         },
         taskDeleted(state, taskId) {
-            state.tasks.splice(state.tasks.findIndex(task => task.id === taskId), 1)
+            state.tasks.splice(state.tasks.findIndex(task => task.id == taskId), 1)
         }
     },
     actions: {

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <b-alert
-      v-model="showAlert"
-      v-text="message"
-      variant="success"
-    ></b-alert>
     <div class="d-flex">
       <sidebar></sidebar>
-      <div>
+      <div class="w-100">
+        <b-alert
+            v-model="showAlert"
+            v-text="message"
+            variant="success"
+        ></b-alert>
         <h1>Home</h1>
       </div>
     </div>

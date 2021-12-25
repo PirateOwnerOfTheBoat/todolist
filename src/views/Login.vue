@@ -61,14 +61,14 @@ export default {
 
         await this.$router.push(
           {
-            path: '/',
+            name: 'index',
             params: {
               message: 'Logged successfully'
             }
           }
         )
       } catch (err) {
-        this.errorMessage = err.response.data.error
+        this.errorMessage = 'Wrong name or password.'
         this.showAlert = true
       }
     }

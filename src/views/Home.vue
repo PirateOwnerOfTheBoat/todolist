@@ -7,6 +7,7 @@
             v-model="showAlert"
             v-text="message"
             variant="success"
+            dismissible
         ></b-alert>
         <h1>Home</h1>
       </div>

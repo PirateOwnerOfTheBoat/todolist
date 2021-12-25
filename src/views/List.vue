@@ -70,7 +70,7 @@
           </b-form-group>
         </b-form>
       </b-modal>
-      <div class="d-flex">
+      <div class="d-flex justify-content-between">
         <h1 v-if="!editing">{{ todoList.name }}</h1>
         <b-form v-if="editing" inline @submit.prevent="updateTodoList">
           <b-form-input
@@ -86,7 +86,7 @@
             <b-icon font-scale="2" icon="check-circle"></b-icon>
           </b-button>
         </b-form>
-        <div v-if="!editing" class="float-right">
+        <div v-if="!editing">
           <b-link class="link-primary" @click="openCategoryModal(0)">
             <b-icon-plus-circle></b-icon-plus-circle>
           </b-link>

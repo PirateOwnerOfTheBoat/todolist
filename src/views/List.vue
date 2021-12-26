@@ -152,7 +152,8 @@ export default {
 
       taskForm: {
         task: '',
-        priority: 0
+        priority: 0,
+        is_done: false,
       },
       taskFormValidity: null,
 

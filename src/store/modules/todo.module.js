@@ -46,8 +46,13 @@ export default {
             Object.assign(state.todoLists[state.todoLists.findIndex(todoList => todoList.id === todoListId)], todoList)
         },
         todoListDeleted(state, todoListId) {
+            state.categories.filter(category => category.todo_list_id === todoListId).forEach((category) => {
+                state.tasks.filter(task => task.category_id === category.id).forEach((task) => {
+                    state.tasks.splice(state.tasks.findIndex(t => t.id === task.id), 1)
+                })
+                state.categories.splice(state.categories.findIndex(c => c.id === category.id), 1)
+            })
             state.todoLists.splice(state.todoLists.findIndex(todoList => todoList.id === todoListId), 1)
-            // TODO: Delete categories and tasks
         },
 
         categoryCreated(state, category) {
@@ -57,8 +62,10 @@ export default {
             Object.assign(state.categories[state.categories.findIndex(category => category.id === categoryId)], category)
         },
         categoryDeleted(state, categoryId) {
+            state.tasks.filter(task => task.category_id === categoryId).forEach((task) => {
+                state.tasks.splice(state.tasks.findIndex(t => t.id === task.id), 1)
+            })
             state.categories.splice(state.categories.findIndex(category => category.id === categoryId), 1)
-            // TODO: Delete tasks
         },
 
         taskCreated(state, task) {

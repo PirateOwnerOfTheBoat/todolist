@@ -119,7 +119,7 @@
         <b-collapse visible :id="`collapse-${category.id}`">
           <div class="d-flex justify-content-between" v-for="task in tasks(category.id)" :key="task.id">
             <div class="d-flex">
-              <b-form-checkbox :checked="task.is_done!=='0'" type="checkbox" :ref="`task-checkbox-${task.id}`" @click.native.prevent="toggleTask(task.id)"/>
+              <b-form-checkbox :checked="task.is_done==='1'" type="checkbox" :ref="`task-checkbox-${task.id}`" @click.native.prevent="toggleTask(task.id)"/>
               <p>{{ task.task }}-{{ task.priority }}</p>
             </div>
             <div>

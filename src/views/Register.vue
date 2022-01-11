@@ -61,6 +61,7 @@
 </template>
 
 <script>
+//@
 import authApi from "../axios/auth.api";
 
 export default {
@@ -81,7 +82,9 @@ export default {
       this.showAlert = false
 
       try {
+        //kokot
         await authApi.register(this.registerForm.name, this.registerForm.email, this.registerForm.password, this.registerForm.password_confirmation)
+        //znovu 10 riadkov router...
         await this.$router.replace({
           name: 'login',
           params: {

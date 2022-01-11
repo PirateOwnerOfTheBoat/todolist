@@ -1,3 +1,4 @@
+<!--OMG TO CO JE ZREDUKOVAT!!!!!!-->
 <template>
   <div class="d-flex">
     <sidebar></sidebar>
@@ -135,6 +136,11 @@
 </template>
 
 <script>
+//input si mozes spravit svoj custom component a do neho posielat props
+//tak isto si dokazes naviazat model z tohto view cize budes mat nieco take <MojInput v-model="form.name" type="name" />
+//v componente je to ze this.$emit[update:modelValue]
+
+//ked mas methodu ktora sa pouziva iba v scripte tak pred nu jebni _ (cize _loadTasks())
 import Sidebar from "../components/a-sidebar"
 
 export default {
@@ -156,25 +162,29 @@ export default {
       },
       taskFormValidity: null,
 
+      //usetris text: categoryModal: {title, mode, categoryId, busy}
       categoryModal: false,
       categoryModalTitle: 'Create New Category',
       categoryModalMode: 0,
       categoryModalCategoryId: 0,
       categoryModalBusy: false,
-
+      //to iste tu
       taskModal: false,
       taskModalTitle: 'Create New Task',
       taskModalMode: 0,
       taskModalId: 0,
       taskModalBusy: false,
-
+      
+      //editing co? a tiez 2 slovne kludne is_editing alebo isEditing
       editing: false
     }
   },
   created() {
+    //namespaced? takto neviem co sa vobec reloaduje
     this.$store.dispatch('reloadAll')
   },
   computed: {
+    //pouzivaj mapGetters more!
     todoList() {
       return this.$store.getters.getTodoListById(this.$route.params.id)
     },
@@ -184,6 +194,7 @@ export default {
   },
   methods: {
     async updateTodoList() {
+      //$route.params nie je refresh safe takze bacha na logiku (mozno je to ok neviem)
       await this.$store.dispatch('updateTodoList', {todoListId: this.$route.params.id, todoList:this.editForm})
       this.closeTodoListEditForm()
     },
@@ -193,9 +204,11 @@ export default {
     },
 
     openCategoryModal(mode, categoryId) {
+      //toto je nejaky reset? neoplati sa to dat do separate method?
       this.categoryFormValidity = null
       this.categoryModalMode = mode
       this.categoryModalCategoryId = categoryId
+      //switch 🤮
       switch (this.categoryModalMode) {
         case 0:
           this.categoryForm.name = ''
@@ -206,15 +219,18 @@ export default {
           this.categoryModalTitle = 'Edit Category'
           break
       }
+      //lol podstatne meno = boolean? (isOpen?)
       this.categoryModal = true
     },
     validateCategoryForm() {
       const valid = this.$refs.newCategoryForm.checkValidity()
+      // sak isCategoryFormValid
       this.categoryFormValidity = valid
       return valid
     },
     async handleCategorySubmit() {
       if (!this.validateCategoryForm()) return
+      //isCategory
       this.categoryModalBusy = true
 
       switch (this.categoryModalMode) {
@@ -226,6 +242,7 @@ export default {
           break
       }
 
+      //hopla better have fucking good reason for using (ak to musi byt tak to napis do komentu a daj aj reason)
       this.$nextTick(() => {
         this.categoryModal = !this.categoryModal
         this.categoryModalBusy = false
@@ -236,10 +253,12 @@ export default {
     },
 
     openTaskModal(mode, id) {
+      //toto je tiez reset?
       this.taskFormValidity = null
       this.taskModalMode = mode
       this.taskModalId = id
 
+      //🤮
       switch (this.taskModalMode) {
         case 0:
           this.taskForm.task = ''
@@ -255,6 +274,7 @@ export default {
 
       this.taskModal = true
     },
+    //das to do jedneho! ty to das
     validateTaskForm() {
       const valid = this.$refs.newTaskForm.checkValidity()
       this.taskFormValidity = valid
@@ -273,6 +293,7 @@ export default {
           break
       }
 
+      //☢️☢️☢️☢️☢️☢️☢️☢️☢️☢️
       this.$nextTick(() => {
         this.taskModal = !this.taskModal
         this.taskModalBusy = false
@@ -287,6 +308,7 @@ export default {
       await this.$store.dispatch('updateTask', {
         taskId:taskId,
         task: {
+          //OMG NEEEEEEEEEE === (kludne daj do komentu ze preco)
           is_done:(this.$store.getters.getTaskById(taskId).is_done==="0") ? "1" : "0"
         }
       })
@@ -299,7 +321,7 @@ export default {
       this.editing = false
       this.editForm.name = ''
     },
-
+    //tasks??????? to je meno methody more? lepsie som ta ucil! co sme v store?
     tasks(id) {
       return this.$store.getters.getTasksByCategoryId(id)
     },

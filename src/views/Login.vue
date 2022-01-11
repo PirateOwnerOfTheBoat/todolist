@@ -52,6 +52,7 @@ export default {
         password: ''
       },
 
+      //maybe successBox: {message, alert}
       successMessage: '',
       successAlert: false,
 
@@ -60,6 +61,7 @@ export default {
     }
   },
   mounted() {
+    //hihi 1 riadok waste
     const message = this.$route.params.message
     if (message) {
       this.successMessage = message
@@ -73,6 +75,7 @@ export default {
       try {
         await this.$store.dispatch("login", this.loginForm)
 
+        //really to musi byt na realne 8 riadku???? ved kazdy pozna router.push
         await this.$router.push(
           {
             name: 'index',
@@ -82,6 +85,7 @@ export default {
           }
         )
       } catch (err) {
+        //eslint error, variable err is defined but never used
         this.errorMessage = 'Wrong name or password.'
         this.errorAlert = true
       }

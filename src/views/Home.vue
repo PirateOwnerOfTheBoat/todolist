@@ -1,8 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <!--joj more sak <Sidebar /> a uz si profik-->
-      <sidebar></sidebar>
+      <Sidebar />
       <div class="w-100">
         <b-alert
             v-model="showAlert"
@@ -16,8 +15,7 @@
 </template>
 
 <script>
-//...
-import Sidebar from "../components/a-sidebar"
+import Sidebar from '@/components/a-sidebar'
 
 export default {
   components: { Sidebar },
@@ -28,11 +26,9 @@ export default {
     }
   },
   mounted() {
-    //tu sa da usetrit 1 riadok :) 
-    const message = this.$route.params.message
-    if (message) {
+    this.message = this.$route.params.message
+    if (this.message) {
       this.showAlert = true
-      this.message = message
     }
   }
 }

@@ -32,7 +32,8 @@ const routes = [
   },
   {
     path: '*',
-    component: PageNotFound
+    name: 'pagenotfound',
+    component: PageNotFound,
   }
 ]
 

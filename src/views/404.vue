@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <sidebar></sidebar>
+      <Sidebar />
       <h1>404</h1>
     </div>
   </div>

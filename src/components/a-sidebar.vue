@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import {mapGetters} from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
@@ -57,12 +57,14 @@ export default {
     }
   },
   created() {
-    this.$store.dispatch('reloadTodoLists')
+    this.$store.dispatch('todoModule/reloadTodoLists')
   },
   computed: {
-    ...mapGetters([
+    ...mapGetters("todoModule", [
         "getTodoLists",
-        "getUser"
+    ]),
+    ...mapGetters("authModule", [
+        "getUser",
     ])
   },
   methods: {
@@ -75,23 +77,16 @@ export default {
       if (!this.checkForm()) return
       this.modalBusy = true
 
-      await this.$store.dispatch('createTodoList', this.todoListForm)
+      await this.$store.dispatch('todoModule/createTodoList', this.todoListForm)
 
-      this.$nextTick(() => {
-        this.modalShow = !this.modalShow
-        this.todoListForm.name = ''
-        this.todoListFormValidity = null
-        this.modalBusy = false
-      })
+      this.modalShow = !this.modalShow
+      this.todoListForm.name = ''
+      this.todoListFormValidity = null
+      this.modalBusy = false
     },
     async logout() {
-      await this.$store.dispatch('logout')
-      await this.$router.push({
-        name: 'login',
-        params: {
-          message: 'Logged out successfully.'
-        }
-      })
+      await this.$store.dispatch('authModule/logout')
+      await this.$router.push({ name: 'login', params: { message: 'Logged out successfully.' } })
     }
   }
 }

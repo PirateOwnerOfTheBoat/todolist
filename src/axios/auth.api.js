@@ -1,4 +1,5 @@
-import Api from "../custom"
+import Api from '@/axios'
+import store from "@/store";
 
 export default {
     login(login, password) {
@@ -9,10 +10,10 @@ export default {
     },
     logout() {
         return Api.post('/auth/forgot', {
-            email: JSON.parse(localStorage.getItem("user")).email
+            email: store.getters['authModule/getUser'].email
         }, {
             headers: {
-                "Authorization": `Bearer ${localStorage.getItem("token")}`
+                "Authorization": `Bearer ${store.getters['authModule/getToken']}`
             }
         })
     },

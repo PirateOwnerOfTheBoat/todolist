@@ -3,6 +3,7 @@ import categoriesApi from "../../axios/categories.api";
 import tasksApi from "../../axios/tasks.api";
 
 export default {
+    namespaced: true,
     state: {
         todoLists: [],
         categories: [],

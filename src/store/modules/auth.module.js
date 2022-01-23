@@ -1,6 +1,7 @@
 import authApi from "../../axios/auth.api";
 
 export default {
+    namespaced: true,
     state: {
         user: JSON.parse(localStorage.getItem("user")) || {},
         token: localStorage.getItem("token") || {},

@@ -1,19 +1,19 @@
 <!--OMG TO CO JE ZREDUKOVAT!!!!!!-->
 <template>
   <div class="d-flex">
-    <sidebar></sidebar>
+    <Sidebar />
     <div class="w-100">
       <b-modal
           ref="newCategoryModal"
-          v-model="categoryModal"
-          :busy="categoryModalBusy"
-          :title="categoryModalTitle"
+          v-model="categoryModal.shown"
+          :busy="categoryModal.busy"
+          :title="categoryModal.title"
           @ok.prevent="handleCategorySubmit"
       >
         <b-form ref="newCategoryForm" @submit.stop.prevent="handleCategorySubmit">
           <b-form-group
               id="modal-group-1"
-              :state="categoryFormValidity"
+              :state="isCategoryFormValid"
               invalid-feedback="Name is required"
               label="Name"
               label-for="modal-1"
@@ -21,7 +21,7 @@
             <b-form-input
                 id="modal-1"
                 v-model="categoryForm.name"
-                :state="categoryFormValidity"
+                :state="isCategoryFormValid"
                 placeholder="Enter category name"
                 required
                 type="text"
@@ -31,15 +31,15 @@
       </b-modal>
       <b-modal
           ref="newTaskModal"
-          v-model="taskModal"
-          :busy="taskModalBusy"
-          :title="taskModalTitle"
+          v-model="taskModal.shown"
+          :busy="taskModal.busy"
+          :title="taskModal.title"
           @ok.prevent="handleTaskSubmit"
       >
         <b-form ref="newTaskForm" @submit.stop.prevent="handleTaskSubmit">
           <b-form-group
               id="task-modal-group-1"
-              :state="taskFormValidity"
+              :state="isTaskFormValid"
               invalid-feedback="Task is required"
               label="Task"
               label-for="task-modal-1"
@@ -47,7 +47,7 @@
             <b-form-input
                 id="task-modal-1"
                 v-model="taskForm.task"
-                :state="taskFormValidity"
+                :state="isTaskFormValid"
                 placeholder="Enter task"
                 required
                 type="text"
@@ -55,7 +55,7 @@
           </b-form-group>
           <b-form-group
               id="task-modal-group-2"
-              :state="taskFormValidity"
+              :state="isTaskFormValid"
               invalid-feedback="Priority is required"
               label="Priority"
               label-for="task-modal-2"
@@ -63,7 +63,7 @@
             <b-form-input
                 id="task-modal-2"
                 v-model="taskForm.priority"
-                :state="taskFormValidity"
+                :state="isTaskFormValid"
                 placeholder="Enter priority"
                 required
                 type="number"
@@ -72,8 +72,8 @@
         </b-form>
       </b-modal>
       <div class="d-flex justify-content-between">
-        <h1 v-if="!editing">{{ todoList.name }}</h1>
-        <b-form v-if="editing" inline @submit.prevent="updateTodoList">
+        <h1 v-if="!isListTitleEditing">{{ getTodoList.name }}</h1>
+        <b-form v-if="isListTitleEditing" inline @submit.prevent="updateTodoList">
           <b-form-input
               id="edit-form-name-input"
               v-model="editForm.name"
@@ -87,11 +87,11 @@
             <b-icon font-scale="2" icon="check-circle"></b-icon>
           </b-button>
         </b-form>
-        <div v-if="!editing">
+        <div v-if="!isListTitleEditing">
           <b-link class="link-primary" @click="openCategoryModal(0)">
             <b-icon-plus-circle></b-icon-plus-circle>
           </b-link>
-          <b-link class="link-secondary" @click="editing = !editing">
+          <b-link class="link-secondary" @click="isListTitleEditing = !isListTitleEditing">
             <b-icon-pencil-square></b-icon-pencil-square>
           </b-link>
           <b-link class="link-danger" @click="deleteTodoList">
@@ -101,7 +101,7 @@
       </div>
       <b-card
           header-tag="header"
-          v-for="category in categories" :key="category.id"
+          v-for="category in getCategoriesByTodoListId(this.$route.params.id)" :key="category.id"
       >
         <template #header>
           <div class="d-flex justify-content-between">
@@ -118,7 +118,7 @@
           </div>
         </template>
         <b-collapse visible :id="`collapse-${category.id}`">
-          <div class="d-flex justify-content-between" v-for="task in tasks(category.id)" :key="task.id">
+          <div class="d-flex justify-content-between" v-for="task in getTasksById(category.id)" :key="task.id">
             <div class="d-flex">
               <b-form-checkbox :checked="task.is_done==='1'" type="checkbox" :ref="`task-checkbox-${task.id}`" @click.native.prevent="toggleTask(task.id)"/>
               <p>{{ task.task }}-{{ task.priority }}</p>
@@ -128,7 +128,7 @@
               <b-link class="link-danger" @click="deleteTask(task.id)"><b-icon-trash></b-icon-trash></b-link>
             </div>
           </div>
-          <b-card-text v-if="!tasks(category.id).length > 0">No tasks yet :(</b-card-text>
+          <b-card-text v-if="!getTasksById(category.id).length > 0">No tasks yet :(</b-card-text>
         </b-collapse>
       </b-card>
     </div>
@@ -141,7 +141,8 @@
 //v componente je to ze this.$emit[update:modelValue]
 
 //ked mas methodu ktora sa pouziva iba v scripte tak pred nu jebni _ (cize _loadTasks())
-import Sidebar from "../components/a-sidebar"
+import Sidebar from "@/components/a-sidebar"
+import { mapGetters } from "vuex";
 
 export default {
   components: { Sidebar },
@@ -154,162 +155,139 @@ export default {
       categoryForm: {
         name: ''
       },
-      categoryFormValidity: null,
+      isCategoryFormValid: null,
 
       taskForm: {
         task: '',
         priority: 0,
       },
-      taskFormValidity: null,
+      isTaskFormValid: null,
 
-      //usetris text: categoryModal: {title, mode, categoryId, busy}
-      categoryModal: false,
-      categoryModalTitle: 'Create New Category',
-      categoryModalMode: 0,
-      categoryModalCategoryId: 0,
-      categoryModalBusy: false,
-      //to iste tu
-      taskModal: false,
-      taskModalTitle: 'Create New Task',
-      taskModalMode: 0,
-      taskModalId: 0,
-      taskModalBusy: false,
-      
-      //editing co? a tiez 2 slovne kludne is_editing alebo isEditing
-      editing: false
+      categoryModal: {
+        title: 'Create New Category',
+        mode: 0,
+        categoryId: 0,
+        busy: false,
+        shown: false,
+      },
+
+      taskModal: {
+        title: 'Create New Task',
+        mode: 0,
+        id: 0,
+        busy: false,
+        shown: false,
+      },
+
+      isListTitleEditing: false
     }
   },
   created() {
-    //namespaced? takto neviem co sa vobec reloaduje
-    this.$store.dispatch('reloadAll')
+    this.$store.dispatch('todoModule/reloadAll')
   },
   computed: {
-    //pouzivaj mapGetters more!
-    todoList() {
-      return this.$store.getters.getTodoListById(this.$route.params.id)
-    },
-    categories() {
-      return this.$store.getters.getCategoriesByTodoListId(this.$route.params.id)
-    },
+    ...mapGetters("todoModule", [
+      "getTodoListById",
+    ]),
+    getTodoList() {
+      return this.getTodoListById(this.$route.params.id)
+    }
   },
   methods: {
     async updateTodoList() {
       //$route.params nie je refresh safe takze bacha na logiku (mozno je to ok neviem)
-      await this.$store.dispatch('updateTodoList', {todoListId: this.$route.params.id, todoList:this.editForm})
+      await this.$store.dispatch('todoModule/updateTodoList', {todoListId: this.$route.params.id, todoList:this.editForm})
       this.closeTodoListEditForm()
     },
     async deleteTodoList() {
-      await this.$store.dispatch('deleteTodoList', this.$route.params.id)
+      await this.$store.dispatch('todoModule/deleteTodoList', this.$route.params.id)
       await this.$router.replace('/')
     },
 
     openCategoryModal(mode, categoryId) {
       //toto je nejaky reset? neoplati sa to dat do separate method?
-      this.categoryFormValidity = null
-      this.categoryModalMode = mode
-      this.categoryModalCategoryId = categoryId
-      //switch 🤮
-      switch (this.categoryModalMode) {
-        case 0:
-          this.categoryForm.name = ''
-          this.categoryModalTitle = 'Create New Category'
-          break
-        case 1:
-          this.categoryForm.name = this.$store.getters.getCategoryById(categoryId).name
-          this.categoryModalTitle = 'Edit Category'
-          break
+      this.isCategoryFormValid = null
+      this.categoryModal.mode = mode
+      this.categoryModal.categoryId = categoryId
+
+      if (this.categoryModal.mode === 0) {
+        this.categoryForm.name = ''
+        this.categoryModal.title = 'Create New Category'
+      } else {
+        this.categoryForm.name = this.$store.getters["todoModule/getCategoryById"](categoryId).name
+        this.categoryModal.title = 'Edit Category'
       }
-      //lol podstatne meno = boolean? (isOpen?)
-      this.categoryModal = true
-    },
-    validateCategoryForm() {
-      const valid = this.$refs.newCategoryForm.checkValidity()
-      // sak isCategoryFormValid
-      this.categoryFormValidity = valid
-      return valid
+
+      this.categoryModal.shown = true
     },
     async handleCategorySubmit() {
-      if (!this.validateCategoryForm()) return
-      //isCategory
-      this.categoryModalBusy = true
+      if (!this._validateForm(1)) return
+      this.categoryModal.busy = true
 
-      switch (this.categoryModalMode) {
-        case 0:
-          await this.$store.dispatch('createCategory', {todoListId:this.$route.params.id, category:this.categoryForm})
-          break
-        case 1:
-          await this.$store.dispatch('updateCategory', {categoryId:this.categoryModalCategoryId, category:this.categoryForm})
-          break
+      if (this.categoryModal.mode === 0) {
+        await this.$store.dispatch('todoModule/createCategory', {todoListId:this.$route.params.id, category:this.categoryForm})
+      } else {
+        await this.$store.dispatch('todoModule/updateCategory', {categoryId:this.categoryModal.categoryId, category:this.categoryForm})
       }
 
-      //hopla better have fucking good reason for using (ak to musi byt tak to napis do komentu a daj aj reason)
-      this.$nextTick(() => {
-        this.categoryModal = !this.categoryModal
-        this.categoryModalBusy = false
-      })
+      this.categoryModal.shown = !this.categoryModal.shown
+      this.categoryModal.busy = false
     },
     async deleteCategory(category) {
-      await this.$store.dispatch('deleteCategory', category.id)
+      await this.$store.dispatch('todoModule/deleteCategory', category.id)
     },
 
     openTaskModal(mode, id) {
       //toto je tiez reset?
-      this.taskFormValidity = null
-      this.taskModalMode = mode
-      this.taskModalId = id
+      this.isTaskFormValid = null
+      this.taskModal.mode = mode
+      this.taskModal.id = id
 
-      //🤮
-      switch (this.taskModalMode) {
-        case 0:
-          this.taskForm.task = ''
-          this.taskForm.priority = 0
-          this.taskModalTitle = 'Create New Task'
-          break
-        case 1:
-          this.taskForm.task = this.$store.getters.getTaskById(id).task
-          this.taskForm.priority = this.$store.getters.getTaskById(id).priority
-          this.taskModalTitle = 'Edit Task'
-          break
+      if (this.taskModal.mode === 0) {
+        this.taskForm.task = ''
+        this.taskForm.priority = 0
+        this.taskModal.title = 'Create New Task'
+      } else {
+        this.taskForm.task = this.$store.getters["todoModule/getTaskById"](id).task
+        this.taskForm.priority = this.$store.getters["todoModule/getTaskById"](id).priority
+        this.taskModal.title = 'Edit Task'
       }
 
-      this.taskModal = true
+      this.taskModal.shown = true
     },
-    //das to do jedneho! ty to das
-    validateTaskForm() {
-      const valid = this.$refs.newTaskForm.checkValidity()
-      this.taskFormValidity = valid
-      return valid
+    _validateForm(formId) {
+      if (formId === 0) {
+        this.isTaskFormValid = this.$refs.newTaskForm.checkValidity()
+        return this.isTaskFormValid
+      } else {
+        this.isCategoryFormValid = this.$refs.newTaskForm.checkValidity()
+        return this.isCategoryFormValid
+      }
     },
     async handleTaskSubmit() {
-      if (!this.validateTaskForm()) return
-      this.taskModalBusy = true
+      if (!this._validateForm(0)) return
+      this.taskModal.busy = true
 
-      switch (this.taskModalMode) {
-        case 0:
-          await this.$store.dispatch('createTask', {categoryId: this.taskModalId, task: this.taskForm})
-          break
-        case 1:
-          await this.$store.dispatch('updateTask', {taskId: this.taskModalId, task: this.taskForm})
-          break
+      if (this.taskModal.mode === 0) {
+        await this.$store.dispatch('todoModule/createTask', {categoryId: this.taskModal.id, task: this.taskForm})
+      } else {
+        await this.$store.dispatch('todoModule/updateTask', {taskId: this.taskModal.id, task: this.taskForm})
       }
 
-      //☢️☢️☢️☢️☢️☢️☢️☢️☢️☢️
-      this.$nextTick(() => {
-        this.taskModal = !this.taskModal
-        this.taskModalBusy = false
-      })
+      this.taskModal.shown = !this.taskModal.shown
+      this.taskModal.busy = false
     },
     async deleteTask(taskId) {
-      await this.$store.dispatch('deleteTask', taskId)
+      await this.$store.dispatch('todoModule/deleteTask', taskId)
     },
     async toggleTask(taskId) {
       this.$refs[`task-checkbox-${taskId}`].disabled = true
 
-      await this.$store.dispatch('updateTask', {
+      await this.$store.dispatch('todoModule/updateTask', {
         taskId:taskId,
         task: {
           //OMG NEEEEEEEEEE === (kludne daj do komentu ze preco)
-          is_done:(this.$store.getters.getTaskById(taskId).is_done==="0") ? "1" : "0"
+          is_done:(this.$store.getters["todoModule/getTaskById"](taskId).is_done==="0") ? "1" : "0"
         }
       })
 
@@ -318,13 +296,16 @@ export default {
 
 
     closeTodoListEditForm() {
-      this.editing = false
+      this.isListTitleEditing = false
       this.editForm.name = ''
     },
-    //tasks??????? to je meno methody more? lepsie som ta ucil! co sme v store?
-    tasks(id) {
-      return this.$store.getters.getTasksByCategoryId(id)
+
+    getTasksById(id) {
+      return this.$store.getters["todoModule/getTasksByCategoryId"](id)
     },
+    getCategoriesByTodoListId(todoListId) {
+      return this.$store.getters["todoModule/getCategoriesByTodoListId"](todoListId)
+    }
   }
 }
 </script>

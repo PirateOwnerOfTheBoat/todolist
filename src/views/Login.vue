@@ -2,11 +2,11 @@
   <div>
     <b-form>
       <h2>Login</h2>
-      <b-alert v-model="errorAlert" variant="danger" dismissible>
-        {{ errorMessage }}
+      <b-alert v-model="errorBox.isShown" variant="danger" dismissible>
+        {{ errorBox.errorMessage }}
       </b-alert>
-      <b-alert v-model="successAlert" variant="success" dismissible>
-        {{ successMessage }}
+      <b-alert v-model="successBox.isShown" variant="success" dismissible>
+        {{ successBox.successMessage }}
       </b-alert>
       <b-form @submit.prevent="login()">
         <b-form-group
@@ -52,42 +52,34 @@ export default {
         password: ''
       },
 
-      //maybe successBox: {message, alert}
-      successMessage: '',
-      successAlert: false,
+      successBox: {
+        message: '',
+        isShown: false,
+      },
 
-      errorMessage: '',
-      errorAlert: false
+      errorBox: {
+        message: '',
+        isShown: false,
+      },
     }
   },
   mounted() {
-    //hihi 1 riadok waste
-    const message = this.$route.params.message
-    if (message) {
-      this.successMessage = message
-      this.successAlert = true
+    this.successMessage = this.$route.params.message
+    if (this.successMessage) {
+      this.successBox.isShown = true
     }
   },
   methods: {
     async login() {
-      this.errorAlert = false
+      this.errorBox.isShown = false
 
       try {
-        await this.$store.dispatch("login", this.loginForm)
+        await this.$store.dispatch("authModule/login", this.loginForm)
 
-        //really to musi byt na realne 8 riadku???? ved kazdy pozna router.push
-        await this.$router.push(
-          {
-            name: 'index',
-            params: {
-              message: 'Logged successfully'
-            }
-          }
-        )
-      } catch (err) {
-        //eslint error, variable err is defined but never used
+        await this.$router.push({ name: 'index', params: { message: 'Logged successfully' } })
+      } catch {
         this.errorMessage = 'Wrong name or password.'
-        this.errorAlert = true
+        this.errorBox.isShown = true
       }
     }
   }
